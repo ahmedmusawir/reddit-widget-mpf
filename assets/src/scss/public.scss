@@ -1,0 +1,33 @@
+/*=============================
+=            GLOBALS            =
+=============================*/
+
+@import "global";
+// @import "custom";
+
+/*=======================================
+=       PUBLIC:  PLUGIN STYLES          =
+=======================================*/
+
+.mpf-recent-post-widget {
+	// border: 1rem solid red;
+	li {
+		list-style-type: none;
+		clear: both;
+
+		.mpf-recent-col-1 {
+			width: 20%;
+			float: left;
+			img {
+				padding-right: .5rem;
+				padding-bottom: .5rem;
+			}
+			i {
+				padding-bottom: .3rem;
+			}
+		}
+		.mpf-recent-col-2 {
+			width: 80%;
+		}
+	}
+}
