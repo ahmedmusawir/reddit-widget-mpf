@@ -44,6 +44,38 @@ class Reddit_Json_MPF_Widget_Body extends WP_Widget {
 		// include( plugin_dir_path( __FILE__ ) . 'inc/Views/mpf-widget-frontend-display.php' );
 
 		$data = $this->display_reddit_posts( $reddit_subject, $reddit_count );
+		// echo $data;
+
+		// echo date("Y-m-d H:i:s");
+		// echo '<pre>';
+		// print_r($data->reddit_posts);
+		// echo '</pre>';	
+
+		?>
+
+		<style type="text/css">
+
+			.reddit-posts-widget {
+				padding-top: 1rem;
+			}
+			.reddit-posts-widget li {
+				padding-bottom: 1rem;
+			}
+			.reddit-posts-widget li:hover {
+				text-decoration: underline;
+			}
+
+		</style>
+
+		<?php	
+
+		if ( false != $data && isset($data->reddit_posts) ) {
+
+			echo '<pre><ul class="reddit-posts-widget"><li>' 
+			. implode( '</li><li>', $data->reddit_posts ) 
+			. '</li><ul></pre>';
+		}
+
 
 
 		echo $args['after_widget'];
@@ -54,32 +86,55 @@ class Reddit_Json_MPF_Widget_Body extends WP_Widget {
 		# code...
 		if ( empty($reddit_subject) ) return false;
 
-		$this->get_reddit_posts( $reddit_subject, $reddit_count );
+		$reddit_posts_cache = get_transient( 'recent_reddit_data' );
+
+		// echo '<pre>';
+		// print_r($reddit_posts_cache);
+		// echo '</pre>';
+
+		if ( ! $reddit_posts_cache || 
+				$reddit_posts_cache->reddit_subject != $reddit_subject || 
+				$reddit_posts_cache->reddit_count != $reddit_count  ) {
+			
+			echo "Pulling Json from Remote ...<br>";
+			return $this->get_reddit_posts( $reddit_subject, $reddit_count );
+		}
+
+		return $reddit_posts_cache;
 
 	}
 
 	private function get_reddit_posts( $reddit_subject, $reddit_count ) {
-		# code...
-		$reddit_posts = wp_remote_get('https://www.reddit.com/r/science.json?limit=5');
+		
+		//Pulls in Json Data
+		$reddit_posts = wp_remote_get("https://www.reddit.com/r/$reddit_subject.json");
 		$reddit_posts = json_decode($reddit_posts['body']);
 		$reddit_posts_array = $reddit_posts->data->children;
 		
+		//If json data fails to arrive
 		if ( isset( $reddit_posts->error ) ) return false;
 
-		echo '<pre>';
-		// print_r($reddit_posts_array);
-		echo '</pre>';
 		
+		$data = new stdClass();
+		$data->reddit_subject = $reddit_subject;
+		$data->reddit_count = $reddit_count;
+		$data->reddit_posts = array();
+
+		//Looping thru the Reddit Json Array
 		foreach ($reddit_posts_array as $post) {
-			echo '<pre>';
-			// print_r($post);
-			echo '<a href="'. $post->data->url .'">' . $post->data->title . '</a>';
-			// echo $post->data->url;
-			echo '</pre>';
+
+			if ( $reddit_count-- === 0 ) break;
+
+			$post_text = '<a href="'. $post->data->url .'" target="_blank">' . $post->data->title . '</a>'; 
+
+			$data->reddit_posts[] = $post_text;
 
 		}
 
+		//Stores in WP DB for 3 minutes
+		set_transient( 'recent_reddit_data', $data, 60 * 1 );
 
+		return $data;
 	}
 
 	/**

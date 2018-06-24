@@ -11,7 +11,7 @@
 	>
 </p>
 
-<p>
+<!-- <p>
 	<label 
 		for="<?php echo esc_attr( $this->get_field_id( 'reddit_subject' ) ); ?>">
 		<?php esc_attr_e( 'Reddit Subject:', 'text_domain' ); ?>
@@ -22,6 +22,27 @@
 		type="text" 
 		value="<?php echo esc_attr( $reddit_subject ); ?>"
 	>
+</p> -->
+
+<p>
+	<label class="mpf-label"><?php _e( 'Reddit Subject:', 'front-to-back' ) ?></label>
+    <select
+        type="text"
+        class="widefat mpf-input" 
+        id="<?php echo $this->get_field_id( 'reddit_subject' ); ?>"
+        name="<?php echo $this->get_field_name( 'reddit_subject' ); ?>"
+    >
+        <option value="wordpress" <?php selected( 'wordpress', $instance[ 'reddit_subject' ], true ); ?>>
+            <?php _e( 'WordPress', 'front-to-back' ); ?>
+        </option>
+        <option value="javascript" <?php selected( 'javascript', $instance[ 'reddit_subject' ], true ); ?>>
+            <?php _e( 'Javascript', 'front-to-back' ); ?>
+        </option>
+        <option value="science" <?php selected( 'science', $instance[ 'reddit_subject' ], true ); ?>>
+            <?php _e( 'Science', 'front-to-back' ); ?>
+        </option>
+        
+    </select> 	
 </p>
 
 <p>
